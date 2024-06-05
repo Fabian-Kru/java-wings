@@ -16,6 +16,7 @@ import org.bson.Document;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -61,7 +62,7 @@ public class SshManager extends Thread {
             }
 
             // user connecting with sftp client -> username.shortUuid
-            if(username.contains(".") && RemoteAPI.isSftpLoginAllowed(username,password).allowed()) {
+            if(username.contains(".") && RemoteAPI.isSftpLoginAllowed(username,password, ((InetSocketAddress) session.getClientAddress()).getHostName()).allowed()) {
                 String path = RemoteAPI.getServerDetails(username.substring(username.lastIndexOf(".") + 1))
                         .get("settings", Document.class).getString("uuid");
                 v.setUserHomeDir(username, Path.of("/home/test/" + path));

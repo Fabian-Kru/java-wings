@@ -122,13 +122,13 @@ public class RemoteAPI {
 
     }
 
-    public static SftpAnswer isSftpLoginAllowed(String username, String password) {
+    public static SftpAnswer isSftpLoginAllowed(String username, String password, String ip) {
         HttpClient client = HttpClient.newHttpClient();
 
         // json formatted data
         String json = ("{\"type\":\"password\",\"username\":\"%s\",\"password\":" +
                 "\"%s\",\"ip\":\"%s\",\"session_id\":\"%s\",\"client_version\":\"%s\",\"server\":\"%s\"}")
-                .formatted(username, password, "141.30.222.122", "1", "2", "baee2b9b-8fda-423b-8517-4f2d0cc2844e");
+                .formatted(username, password, ip, "1", "2", "baee2b9b-8fda-423b-8517-4f2d0cc2844e");
         HttpRequest request = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .setHeader("User-Agent", "Pterodactyl Wings/v%s (id:%s)".formatted("1", JavaWings.WINGS_SECRET_ID))
