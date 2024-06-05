@@ -7,6 +7,9 @@
 > [!NOTE]
 > This project is still in development and not ready for production use.
 
+> [!NOTE]
+> Discord: get help or ask questions: https://discord.gg/vsMUf8yhp6
+
 ## Simple Setup Diagram
 
 ![image](https://i.imgur.com/8s2owkd.png)
@@ -72,3 +75,4 @@ Dependencies
 - Soon
 ## FAQ
 - Soon
+ 
