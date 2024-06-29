@@ -14,7 +14,19 @@
 
 ![image](https://i.imgur.com/8s2owkd.png)
 
+Supported [Nest/Eggs](https://pterodactyl.io/project/terms.html#terminology)
+--
+- [x] Minecraft
+  - [x] Paper/Spigot/Sponge
+  - [x] Bungeecord/Velocity
+  - [x] Vanilla Minecraft
 
+- [ ] Voiceserver
+  - [x] Teamspeak
+  - [ ] Mumble (not tested)
+
+- [ ] Source Engines (not tested)
+- [ ] Rust (not tested)
 
 Prerequisites
 --
@@ -58,6 +70,7 @@ Removed Features
 
 Dependencies
 --
+- snakeyaml (org.yaml:snakeyaml)
 - bson (org.mongodb:bson)
 - java-jwt (com.auth0:java-jwt)
 - sshd-sftp (org.apache.sshd:sshd-sftp)
@@ -71,8 +84,20 @@ Dependencies
 
 ## Known Issues
 - None
+
 ## Installation
-- Soon
+
+### 1. Installing Wings
+>  TODO
+
+### 2. Configuration
+>Once you have installed Wings and the required components, 
+>the next step is to create a node on your installed Panel. 
+>Go to your Panel administrative view, select Nodes from the sidebar,
+>and on the right side click Create New button.
+>
+>After you have created a node, click on it and there will be a tab called Configuration.
+>Copy the code block content, paste it into a new file called **config.yml**  in **/etc/pterodactyl** and save it.
 ## FAQ
 - Soon
  
