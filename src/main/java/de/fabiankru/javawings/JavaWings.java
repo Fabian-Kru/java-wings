@@ -7,14 +7,17 @@ import de.fabiankru.javawings.remote.K8sManager;
 import de.fabiankru.javawings.remote.ServerManager;
 import de.fabiankru.javawings.ssh.SshManager;
 import lombok.Getter;
-import org.bson.Document;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
@@ -27,6 +30,7 @@ public class JavaWings implements WebMvcConfigurer {
     public static String WINGS_BASE_PATH;
     public static String WINGS_BACKUP_PATH;
     public static String WINGS_SECRET;
+    public static String KEY_STORE;
     public static Algorithm ALGORITHM;
     @Getter public static JWTVerifier jwtVerifier;
     public static final Executor executorService = Executors.newCachedThreadPool();
@@ -44,22 +48,39 @@ public class JavaWings implements WebMvcConfigurer {
 
     private static void readConfig() {
         try {
-            File file = new File("config.json");
-            if (!file.exists()) {
-                file.createNewFile();
-                FileWriter writer = new FileWriter(file);
-                Document document = new Document();
-                writer.write(document.toJson());
-                writer.flush();
-                writer.close();
+            Yaml yaml = new Yaml();
+
+            // custom config
+            File jw_file = new File("/etc/pterodactyl/javawings.yml");
+
+            // if custom config file does not exist, use default config file
+            if(!jw_file.exists()) {
+                jw_file = new File("/etc/pterodactyl/config.yml");
             }
-            String content = new String(java.nio.file.Files.readAllBytes(file.toPath()));
-            Document configuration = Document.parse(content);
-            WINGS_SECRET_ID = configuration.getString("WINGS_SECRET_ID");
-            WINGS_SECRET = configuration.getString("WINGS_SECRET");
-            SERVER_IP = configuration.getString("SERVER_IP");
-            WINGS_BASE_PATH = configuration.getString("WINGS_BASE_PATH");
-            WINGS_BACKUP_PATH = configuration.getString("WINGS_BACKUP_PATH");
+
+            InputStream inputStream = new FileInputStream(jw_file);
+
+            Map<String, Object> config_map = yaml.load(inputStream);
+
+            WINGS_SECRET = (String) config_map.get("token");
+            WINGS_SECRET_ID = (String) config_map.get("token_id");
+
+            if (config_map.get("api") != null && config_map.get("api") instanceof LinkedHashMap<?,?> api) {
+                SERVER_IP = (String) api.get("host");
+
+                if (api.get("ssl") != null && api.get("ssl") instanceof LinkedHashMap<?,?> ssl) {
+                    if(ssl.get("enabled").toString().equalsIgnoreCase("true")) {
+                        KEY_STORE = (String) ssl.get("p12");
+                    }
+                }
+            }
+
+
+
+            if (config_map.get("system") != null && config_map.get("system") instanceof LinkedHashMap<?,?> system) {
+                WINGS_BASE_PATH = (String) system.get("data");
+                WINGS_BACKUP_PATH = (String) system.get("backup");
+            }
 
         } catch (Exception e) {
             logger.severe("Error while reading config file");
