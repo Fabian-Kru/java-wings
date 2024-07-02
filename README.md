@@ -35,13 +35,13 @@ Supported [Nest/Eggs](https://pterodactyl.io/project/terms.html#terminology)
 Prerequisites
 --
 - Installed https://pterodactyl.io/ Panel
-- Kubernetes-Cluster with CIFS Support
-- Samba Server or similar (for CIFS)
+- Kubernetes-Cluster
+- Samba Server (or similar compatible with CSI-Driver)
 - Java 17 or higher
 
 optional Requirements
 --
-- Kubernetes Autoscaler using Hetzner API or AWS ..
+- Kubernetes Autoscaler
 - Kubernetes Metrics Server
 
 ---
@@ -107,6 +107,12 @@ Dependencies
 ### 0. Installing [Kubernetes-CSI-Driver](https://github.com/kubernetes-csi/csi-driver-smb/blob/master/docs/install-csi-driver-v1.14.0.md)
 
 > curl -skSL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-smb/v1.14.0/deploy/install-driver.sh | bash -s v1.14.0 --
+
+
+Create credentials for SMB-Share
+```bash
+kubectl create secret generic smbcreds --from-literal username='USERNAME' --from-literal password='PASSWORD' -n java-wings
+```
 
 Create PersistentVolume.yml & kubectl apply -f PersistentVolume.yaml -n java-wings
 ```yaml
