@@ -53,7 +53,9 @@ public class PanelServer {
             permissions.forEach(s -> jwtPermissions.add(JWTPermissions.getByPermission(s)));
             this.sessions.add(new PanelServerSession(jwtPermissions, session.get()));
         }
+
         this.uuid = uuid;
+
         DefaultMapping defaultMapping = new DefaultMapping();
         defaultMapping.setIp("127.0.0.1");
         defaultMapping.setPort(25565);

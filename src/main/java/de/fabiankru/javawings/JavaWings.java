@@ -104,7 +104,7 @@ public class JavaWings implements WebMvcConfigurer {
             try {
                 K8sManager.init();
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
         });
         thread.start();

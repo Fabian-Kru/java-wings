@@ -44,18 +44,22 @@ public class K8sManager {
 
         admin.setDebugging(false);
 
-        while (true) {
-            int code = admin.buildCall("/readyz", "GET",
-                            null, null, null, Map.of(), Map.of(), null,
-                            new String[]{"BearerToken"}, null)
-                    .execute().code();
-            if (code == 200) break;
-            Thread.sleep(500);
-        }
+       try {
+           while (true) {
+               int code = admin.buildCall("/readyz", "GET",
+                               null, null, null, Map.of(), Map.of(), null,
+                               new String[]{"BearerToken"}, null)
+                       .execute().code();
+               if (code == 200) break;
+               Thread.sleep(500);
+           }
+       } catch (Exception e) {
+           logger.log(Level.SEVERE, e.getMessage());
+           Thread.sleep(500);
+       }
 
         api = new CoreV1Api();
-
-        JavaWings.executorService.execute(() -> {
+   /*     JavaWings.executorService.execute(() -> {
 
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
@@ -99,7 +103,7 @@ public class K8sManager {
                 }
             }, 0, 1000);
 
-        });
+        });*/
 
     }
 
@@ -182,8 +186,7 @@ public class K8sManager {
 
             container.setPorts(ports); //TODO map port
             //container volume
-            container.addVolumeMountsItem(new V1VolumeMount().name("server").mountPath("/home/container"));
-
+            container.addVolumeMountsItem(new V1VolumeMount().name("smb").readOnly(false).mountPath("/home/container").subPath(uid));
             V1PodSpec podSpec = new V1PodSpec();
             podSpec.setRestartPolicy("Never");
             podSpec.addContainersItem(container);
@@ -199,16 +202,9 @@ public class K8sManager {
             container.setResources(resourceRequirements);
 
             // Always create volume for server
-            Map<String, String> flexVolumeOptions = new HashMap<>();
-            flexVolumeOptions.put("networkPath", "//" + JavaWings.SERVER_IP + "/test/" + uid);
-            flexVolumeOptions.put("mountOptions", "dir_mode=0777,file_mode=0777,noperm");
             podSpec.setVolumes(List.of(
-                    new V1Volume()
-                            .name("server")
-                            .flexVolume(new V1FlexVolumeSource().driver("fstab/cifs")
-                                    .fsType("cifs")
-                                    .options(flexVolumeOptions)
-                                    .secretRef(new V1LocalObjectReference().name("cifs-secret")))
+                    new V1Volume().name("smb").persistentVolumeClaim(new V1PersistentVolumeClaimVolumeSource()
+                            .claimName("pvc-java-wings-storage").readOnly(false))
             ));
 
             pod.setSpec(podSpec);

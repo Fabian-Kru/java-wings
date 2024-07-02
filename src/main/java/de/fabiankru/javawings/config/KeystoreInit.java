@@ -25,7 +25,7 @@ public class KeystoreInit {
         ssl.setKeyPassword(keystorePassword);
         System.setProperty("server.ssl.key-store", JavaWings.KEY_STORE);
         System.setProperty("server.ssl.keyStoreType", "PKCS12");
-        System.setProperty("server.ssl.keyAlias", "tomcat");
+      //  System.setProperty("server.ssl.keyAlias", "tomcat");
         serverProperties.setSsl(ssl);
 
         System.setProperty("server.ssl.key-store-password", "");
