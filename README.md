@@ -9,10 +9,12 @@
 
 > [!NOTE]
 > Discord: get help or ask questions: https://discord.gg/vsMUf8yhp6
-
+--- 
 ## Simple Setup Diagram
 
 ![image](https://i.imgur.com/8s2owkd.png)
+
+---
 
 Supported [Nest/Eggs](https://pterodactyl.io/project/terms.html#terminology)
 --
@@ -28,6 +30,8 @@ Supported [Nest/Eggs](https://pterodactyl.io/project/terms.html#terminology)
 - [ ] Source Engines (not tested)
 - [ ] Rust (not tested)
 
+---
+
 Prerequisites
 --
 - Installed https://pterodactyl.io/ Panel
@@ -39,6 +43,15 @@ optional Requirements
 --
 - Kubernetes Autoscaler using Hetzner API or AWS ..
 - Kubernetes Metrics Server
+
+---
+
+Additional Features
+--
+- [x] Kubernetes-Support
+- [ ] Pay-Per-Use ready
+  - [ ] Track Pod online time
+  - [ ] Track Pod resource usage
 
 Feature Status
 --
@@ -68,6 +81,8 @@ Removed Features
 --
 - Transfer Server (not needed)
 
+---
+
 Dependencies
 --
 - snakeyaml (org.yaml:snakeyaml)
@@ -85,7 +100,63 @@ Dependencies
 ## Known Issues
 - None
 
+--- 
+
 ## Installation
+
+### 0. Installing [Kubernetes-CSI-Driver](https://github.com/kubernetes-csi/csi-driver-smb/blob/master/docs/install-csi-driver-v1.14.0.md)
+
+> curl -skSL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-smb/v1.14.0/deploy/install-driver.sh | bash -s v1.14.0 --
+
+Create PersistentVolume.yml & kubectl apply -f PersistentVolume.yaml -n java-wings
+```yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  annotations:
+    pv.kubernetes.io/provisioned-by: smb.csi.k8s.io
+  name: pv-java-wings-storage
+spec:
+  capacity:
+    storage: 50Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: smb
+  mountOptions:
+    - dir_mode=0777
+    - file_mode=0777
+  csi:
+    driver: smb.csi.k8s.io
+    readOnly: false
+    # make sure this value is unique for every share in the cluster
+    volumeHandle: java-wings-storage-test
+    volumeAttributes:
+      source: "//<STORAGE-IP>/<STORAGE-SHARE>/" # Change this to your SMB IP and share name
+    nodeStageSecretRef:
+      name: smbcreds
+      namespace: default
+
+```
+
+Create PersistentVolumeClaim.yaml & kubectl apply -f PersistentVolumeClaim.yaml -n java-wings
+```yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: pvc-java-wings-storage
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi #adjust this to your needs
+  volumeName: pv-java-wings-storage
+  storageClassName: smb
+```
+>  
+
 
 ### 1. Installing Wings
 >  TODO
@@ -98,6 +169,9 @@ Dependencies
 >
 >After you have created a node, click on it and there will be a tab called Configuration.
 >Copy the code block content, paste it into a new file called **config.yml**  in **/etc/pterodactyl** and save it.
+
+---
+
 ## FAQ
 - Soon
  
