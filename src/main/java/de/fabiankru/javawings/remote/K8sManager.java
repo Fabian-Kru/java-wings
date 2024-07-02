@@ -342,7 +342,7 @@ public class K8sManager {
 
 
         //container volume
-        container.addVolumeMountsItem(new V1VolumeMount().name("server").mountPath("/mnt/server"));
+        container.addVolumeMountsItem(new V1VolumeMount().name("smb").readOnly(false).mountPath("/mnt/server").subPath(uid));
 
         // set container entrypoint TODO change
         // https://github.com/pterodactyl/wings/blob/f1c5bbd42d423986e7017b4f3c43057a1b7d1717/server/install.go#L116
@@ -355,15 +355,10 @@ public class K8sManager {
 
 
         // Always create volume for server
-        Map<String, String> flexVolumeOptions = new HashMap<>();
-        flexVolumeOptions.put("networkPath", "//" + JavaWings.SERVER_IP + "/test/" + uid);
-        flexVolumeOptions.put("mountOptions", "dir_mode=0777,file_mode=0777,noperm");
+        // Always create volume for server
         podSpec.setVolumes(List.of(
-                new V1Volume()
-                        .name("server")
-                        .flexVolume(new V1FlexVolumeSource().driver("fstab/cifs")
-                                .fsType("cifs").options(flexVolumeOptions)
-                                .secretRef(new V1LocalObjectReference().name("cifs-secret")))
+                new V1Volume().name("smb").persistentVolumeClaim(new V1PersistentVolumeClaimVolumeSource()
+                        .claimName("pvc-java-wings-storage").readOnly(false))
         ));
 
         pod.setSpec(podSpec);
