@@ -175,11 +175,13 @@ public class K8sManager {
             List<V1ContainerPort> ports = new ArrayList<>();
 
             ports.add(new V1ContainerPort().protocol("TCP")
+                    .hostPort(container_port)
                     .containerPort(container_port)
                     .hostPort(container_port));
 
 
             ports.add(new V1ContainerPort().protocol("UDP")
+                    .hostPort(container_port)
                     .containerPort(container_port)
                     .hostPort(container_port));
 
@@ -210,6 +212,7 @@ public class K8sManager {
             pod.setSpec(podSpec);
             logger.log(Level.WARNING, "creating pod");
             V1Pod v1pod = api.createNamespacedPod("java-wings", pod, null, null, null, null);
+
             V1Service v1Service = new V1Service();
             V1ServiceSpec v1ServiceSpec = new V1ServiceSpec();
             v1ServiceSpec.setType("NodePort");
